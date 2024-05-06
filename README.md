@@ -1,1 +1,1 @@
-# task_tracker
+# Трекер задач сотрудников (task_tracker)
