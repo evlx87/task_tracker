@@ -11,29 +11,31 @@ from src.employee.services import api_employee, count_tasks
 # Импорт функций и роутера для работы с задачами
 from src.tasks.services import api_task
 
-create_db()  # Создание базы данных
+# Создание базы данных
+create_db()
 
-Base.metadata.create_all(bind=engine)  # Создание таблиц на основе модели
+# Создание таблиц на основе модели
+Base.metadata.create_all(bind=engine)
 
-app = FastAPI(
-    # Создание экземпляра FastAPI с указанием названия
-    title="Трекер задач сотрудников",
-)
+# Создание экземпляра FastAPI с указанием названия
+app = FastAPI(title="Трекер задач сотрудников",)
 
 # Подключение роутера для работы с сотрудниками
 app.include_router(api_employee)
-app.include_router(api_task)  # Подключение роутера для работы с задачами
+# Подключение роутера для работы с задачами
+app.include_router(api_task)
 
 
 @app.get('/')
 def root(db: Session = Depends(get_db)):
-    employees = db.query(Employee).options(joinedload(
-        Employee.tasks)).all()  # Запрос сотрудников с их задачами
+    # Запрос сотрудников с их задачами
+    employees = db.query(Employee).options(joinedload(Employee.tasks)).all()
     # Сортировка сотрудников по количеству задач
     employees = sorted(employees, key=count_tasks, reverse=True)
+    # Возврат JSON с информацией о сотрудниках
     return {'status': 'success',
             'results': len(employees),
-            'employees': employees}  # Возврат JSON с информацией о сотрудниках
+            'employees': employees}
 
 
 # Запуск сервера локально
