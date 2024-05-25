@@ -17,10 +17,14 @@ def get_tasks(db: Session = Depends(get_db),
               limit: int = 10, page: int = 1) -> dict:
     """
     Функция для получения списка задач с возможностью пагинации
-    :param db: сессия базы данных
-    :param limit: количество задач на страницу
-    :param page: номер страницы
-    :return: словарь с результатами запроса
+
+    Attributes:
+    -----------
+        db: Session Cессия базы данных
+        limit: int Количество задач на страницу
+        page: int Номер страницы
+
+    :return: dict Словарь с результатами запроса
     """
     skip = (page - 1) * limit
     tasks = db.query(Task).limit(limit).offset(skip).all()
@@ -31,9 +35,13 @@ def get_tasks(db: Session = Depends(get_db),
 def get_task(taskId: str, db: Session = Depends(get_db)):
     """
     Функция для получения задачи по её ID
-    :param taskId: ID задачи
-    :param db: сессия базы данных
-    :return: словарь с информацией о задаче
+
+    Attributes:
+    -----------
+        taskId: str ID задачи
+        db: Session сессия базы данных
+
+    :return: dict   словарь с информацией о задаче
     """
     task = db.query(Task).filter(Task.id == taskId).first()
     if not task:
@@ -48,9 +56,13 @@ def create_tasks(payload: TaskCreateUpdateSchema = Depends(),
                  db: Session = Depends(get_db)):
     """
     Функция для создания новой задачи на основе переданных данных
-    :param payload: данные для создания задачи
-    :param db: сессия базы данных
-    :return: словарь с информацией о созданной задаче
+
+    Attributes:
+    -----------
+        payload: TaskCreateUpdateSchema данные для создания задачи
+        db: Session сессия базы данных
+
+    :return: dict словарь с информацией о созданной задаче
     """
     new_task = Task(**payload.dict())
     if new_task.employee_id is not None and new_task.status == 0:
@@ -68,10 +80,14 @@ def update_task(taskId: str, payload: TaskCreateUpdateSchema = Depends(),
                 db: Session = Depends(get_db)):
     """
     Функция для обновления задачи по её ID
-    :param taskId: ID задачи для обновления
-    :param payload: данные для обновления задачи
-    :param db: сессия базы данных
-    :return: словарь с информацией об обновленной задаче
+
+    Attributes:
+    -----------
+        taskId: str     ID задачи для обновления
+        payload: TaskCreateUpdateSchema     данные для обновления задачи
+        db: Session     сессия базы данных
+
+    :return: dict   словарь с информацией об обновленной задаче
     """
     task_query = db.query(Task).filter(Task.id == taskId)
     task = task_query.first()
@@ -92,9 +108,13 @@ def update_task(taskId: str, payload: TaskCreateUpdateSchema = Depends(),
 def delete_task(taskId: str, db: Session = Depends(get_db)):
     """
     Функция для удаления задачи по её ID
-    :param taskId: ID задачи для удаления
-    :param db: сессия базы данных
-    :return: статус 204 при успешном удалении
+
+    Attributes:
+    -----------
+        taskId: str     ID задачи для удаления
+        db: Session     сессия базы данных
+
+    :return: Response   статус 204 при успешном удалении
     """
     task_query = db.query(Task).filter(Task.id == taskId)
     task = task_query.first()
@@ -112,10 +132,14 @@ def get_important_tasks(db: Session = Depends(get_db),
                         limit: int = 10, page: int = 1):
     """
     Функция для получения списка важных задач с учетом родительских задач
-    :param db: сессия базы данных
-    :param limit: количество задач на страницу
-    :param page: номер страницы
-    :return: словарь с результатами запроса
+
+    Attributes:
+    -----------
+        db: Session сессия базы данных
+        limit: int количество задач на страницу
+        page: int номер страницы
+
+    :return: dict словарь с результатами запроса
     """
     skip = (page - 1) * limit
     tasks = (db.query(Task).filter(Task.status == 0).
@@ -134,10 +158,15 @@ def get_free_tasks(db: Session = Depends(get_db),
                    limit: int = 10, page: int = 1):
     """
     Функция для получения списка незадействованных задач (статус задачи = 0)
-    :param db: сессия базы данных
-    :param limit: количество задач на страницу
-    :param page: номер страницы
-    :return: словарь с результатами запроса
+
+    Attributes:
+    -----------
+        db: Session сессия базы данных
+        limit: int  количество задач на страницу
+        page: int   номер страницы
+
+    :return: dict
+        словарь с результатами запроса
     """
     skip = (page - 1) * limit
     tasks = (db.query(Task).filter(Task.status == 0).
@@ -151,9 +180,13 @@ def get_free_tasks(db: Session = Depends(get_db),
 def set_employee_important_task(taskId: str, db: Session = Depends(get_db)):
     """
     Функция для установки исполнителя для важной задачи
-    :param taskId: ID задачи
-    :param db: сессия базы данных
-    :return: словарь с информацией об обновленной задаче
+
+    Attributes:
+    -----------
+        taskId: str  ID задачи
+        db: Session сессия базы данных
+
+    :return: dict   словарь с информацией об обновленной задаче
     """
     task_query = db.query(Task).filter(Task.id == taskId)
     task = task_query.first()

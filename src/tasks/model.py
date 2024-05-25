@@ -14,7 +14,22 @@ from src.employee.model import Base  # Импорт базовой модели 
 
 
 class Task(Base):
-    # Название таблицы в базе данных
+    """
+    Модель задачи.
+
+    Attributes:
+    -----------
+       id : uuid.UUID   Уникальный идентификатор задачи.
+       name : str   Название задачи (обязательное поле, уникальное).
+       content : str    Содержание задачи (обязательное поле).
+       period_of_execution : datetime   Период выполнения задачи.
+       parent_id : uuid.UUID    Идентификатор родительской задачи.
+       status : int Статус задачи (обязательное поле, значение по умолчанию = 0).
+       employee_id : uuid.UUID  Идентификатор сотрудника, ответственного за задачу.
+       employees : relationship Отношение "многие к одному" с таблицей Employee.
+       child_task : relationship    Отношение "один ко многим" с дочерними задачами.
+       parent_task : relationship   Отношение "один ко многим" с родительской задачей.
+    """
     __tablename__ = 'task'
 
     # Определение колонок таблицы task

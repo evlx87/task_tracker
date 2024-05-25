@@ -9,6 +9,15 @@ class BaseTaskSchema(BaseModel):
     """
     Базовая схема Задание.
     Без UUID
+
+    Attributes:
+    -----------
+        name : str  Название задания.
+        content : str   Описание задания.
+        period_of_execution : Optional[datetime]    Период выполнения задания.
+        parent_id : Optional[UUID]  ID родительского задания.
+        status : int    Статус задания.
+        employee_id : Optional[UUID]    ID сотрудника.
     """
     name: str  # Название задания
     content: str  # Описание задания
@@ -39,6 +48,10 @@ class TaskSchema(BaseTaskSchema):
     """
     Схема Задание.
     Добавлен UUID
+
+    Attributes:
+    -----------
+        id : UUID   ID задания.
     """
     id: UUID  # ID задания
 
@@ -52,5 +65,9 @@ class TaskCreateUpdateSchema(BaseTaskSchema):
 class TasksList(BaseModel):
     """
     Список заданий
+
+    Attributes:
+    -----------
+        tasks : List[TaskSchema]    Список заданий.
     """
-    tasks: List[TaskSchema]  # Список заданий
+    tasks: List[TaskSchema]
