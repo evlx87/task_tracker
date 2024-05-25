@@ -12,7 +12,18 @@ api_employee = APIRouter(tags=['Сотрудники'], prefix='/employees')
 # Функция для подсчета количества задач у сотрудника
 
 
-def count_tasks(s):
+def count_tasks(s: Employee) -> int:
+    """
+    Функция для подсчета количества задач у сотрудника.
+
+    Attributes:
+    -----------
+    s : Employee Объект сотрудника.
+
+    Returns:
+    --------
+    int Количество задач у сотрудника.
+    """
     return len(s.tasks)
 
 # Получение списка всех сотрудников
@@ -20,6 +31,17 @@ def count_tasks(s):
 
 @api_employee.get('/', response_model=EmployeeList)
 def get_employees(db: Session = Depends(get_db)) -> dict:
+    """
+    Получение списка всех сотрудников.
+
+    Attributes:
+    -----------
+    db : Session Сессия базы данных.
+
+    Returns:
+    --------
+    dict Словарь с информацией о сотрудниках.
+    """
     # Получаем список всех сотрудников из базы данных
     employees = db.query(Employee).all()
     print(employees)
@@ -32,8 +54,19 @@ def get_employees(db: Session = Depends(get_db)) -> dict:
 
 @api_employee.get('/get/{employeeId}')
 def get_employee(employeeId: str, db: Session = Depends(get_db)):
-    # Ищем сотрудника по ID
-    employee = db.query(Employee).filter(Employee.id == employeeId).first()
+    """
+    Получение информации о конкретном сотруднике по ID.
+
+    Attributes:
+    -----------
+    employeeId : str    Идентификатор сотрудника.
+    db : Session    Сессия базы данных.
+
+    Returns:
+    --------
+    dict    Словарь с информацией о сотруднике.
+    """
+    employee = db.query(Employee).filter(Employee.id == employeeId).first() # Ищем сотрудника по ID
     if not employee:
         # Возвращаем ошибку 404, если сотрудник не найден
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -46,7 +79,18 @@ def get_employee(employeeId: str, db: Session = Depends(get_db)):
 @api_employee.post('/create', status_code=status.HTTP_201_CREATED)
 def create_employees(payload: EmployeeCreateUpdateSchema = Depends(),
                      db: Session = Depends(get_db)):
-    # Создаем нового сотрудника на основе данных из запроса
+    """
+    Создание нового сотрудника на основе предоставленных данных.
+
+    Attributes:
+    -----------
+    payload : EmployeeCreateUpdateSchema Данные для создания нового сотрудника.
+    db : Session Сессия базы данных.
+
+    Returns:
+    --------
+    dict Словарь с информацией о созданном сотруднике.
+    """
     new_employee = Employee(**payload.dict())
     db.add(new_employee)
     db.commit()
@@ -60,7 +104,15 @@ def create_employees(payload: EmployeeCreateUpdateSchema = Depends(),
 def update_employee(employeeId: str,
                     payload: EmployeeCreateUpdateSchema = Depends(),
                     db: Session = Depends(get_db)):
-    # Находим существующего сотрудника по ID
+    """
+    Обновление информации о сотруднике по его ID.
+
+    Attributes:
+    -----------
+    employeeId : str    Идентификатор сотрудника.
+    payload : EmployeeCreateUpdateSchema    Данные для обновления информации о сотруднике.
+    db : Session    Сессия базы данных.
+    """
     employee_query = db.query(Employee).filter(Employee.id == employeeId)
     db_employee = employee_query.first()
 
@@ -81,7 +133,14 @@ def update_employee(employeeId: str,
 
 @api_employee.delete('/del/{employeeId}')
 def delete_employee(employeeId: str, db: Session = Depends(get_db)):
-    # Находим сотрудника по ID и удаляем его
+    """
+    Удаление сотрудника по его ID.
+
+    Attributes:
+    -----------
+    employeeId : str    Идентификатор сотрудника.
+    db : Session    Сессия базы данных.
+    """
     employee_query = db.query(Employee).filter(Employee.id == employeeId)
     employee = employee_query.first()
     if not employee:
@@ -97,7 +156,17 @@ def delete_employee(employeeId: str, db: Session = Depends(get_db)):
 
 @api_employee.get('/busy', response_model=EmployeeList)
 def get_employees_busy(db: Session = Depends(get_db)) -> dict:
-    # Получаем список занятых сотрудников, сортируем по количеству задач
+    """
+    Получение списка занятых сотрудников, с сортировкой по количеству задач.
+
+    Attributes:
+    -----------
+    db : Session Сессия базы данных.
+
+    Returns:
+    --------
+    dict Словарь со списком занятых сотрудников, отсортированных по количеству задач.
+    """
     employees_query = (db.query(Employee).options(joinedload(Employee.tasks)).
                        filter(Employee.tasks is not None).all())
     employees = []
@@ -116,9 +185,15 @@ def get_employees_busy(db: Session = Depends(get_db)) -> dict:
 @api_employee.get('/free')
 def get_employees_free(db: Session = Depends(get_db)):
     """
-    Пытаемся получить свободных сотрудников.
-    :param db:
-    :return: Пока словарь со свободными сотрудниками.
+    Получение списка свободных сотрудников.
+
+    Attributes:
+    -----------
+    db : Session Сессия базы данных.
+
+    Returns:
+    --------
+    dict Словарь со свободными сотрудниками.
     """
 
     employees_query = db.query(Employee).all()

@@ -11,10 +11,24 @@ from sqlalchemy.orm import DeclarativeBase, relationship
 
 
 class Base(DeclarativeBase):
+    """Базовый класс для описания моделей."""
     pass
 
 
 class Employee(Base):  # Определение модели Employee
+    """
+    Модель данных для представления информации о сотруднике.
+
+    Attributes:
+    -----------
+    id : UUID           Уникальный идентификатор сотрудника.
+    email : str         Email сотрудника.
+    last_name : str     Фамилия сотрудника.
+    first_name : str    Имя сотрудника.
+    patronymic : str (optional) Отчество сотрудника.
+    post : str (optional)       Должность сотрудника.
+    tasks : relationship[Task]  Отношение с моделью Task.
+    """
     __tablename__ = 'employee'  # Имя таблицы в базе данных
 
     id = Column(
@@ -36,16 +50,17 @@ class Employee(Base):  # Определение модели Employee
         back_populates='employees',
         lazy='joined')  # Отношение с моделью Task
 
-    def __repr__(self):  # Переопределение метода __repr__
-        return (f"Employee(email='{self.email}', "  # Возвращает строковое представление объекта
+    def __repr__(self):
+        """Метод возвращает строковое представление объекта Employee."""
+        return (f"Employee(email='{self.email}', "
                 f"last_name='{self.last_name}', "
                 f"first_name='{self.first_name}', "
                 f"patronymic='{self.patronymic}', "
                 f"post='{self.post}')")
 
-    def count_task(self) -> int:  # Метод для подсчета количества задач у сотрудника
+    def count_task(self) -> int:
         """
         Возвращает количество взятых для работы задач
         :return: количество задач
         """
-        return len(self.tasks)  # Возвращает количество задач
+        return len(self.tasks)
