@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Body
 from fastapi.openapi.models import Response
 from sqlalchemy.orm import Session, joinedload
 
@@ -77,7 +77,7 @@ def get_employee(employeeId: str, db: Session = Depends(get_db)):
 
 
 @api_employee.post('/create', status_code=status.HTTP_201_CREATED)
-def create_employees(payload: EmployeeCreateUpdateSchema = Depends(),
+def create_employees(payload: EmployeeCreateUpdateSchema = Body(),
                      db: Session = Depends(get_db)):
     """
     Создание нового сотрудника на основе предоставленных данных.

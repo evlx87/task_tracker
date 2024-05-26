@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Body
 from fastapi.openapi.models import Response
 from sqlalchemy.orm import Session
 
@@ -52,7 +52,7 @@ def get_task(taskId: str, db: Session = Depends(get_db)):
 
 # Создание новой задачи
 @api_task.post('/create/', status_code=status.HTTP_201_CREATED)
-def create_tasks(payload: TaskCreateUpdateSchema = Depends(),
+def create_tasks(payload: TaskCreateUpdateSchema = Body(),
                  db: Session = Depends(get_db)):
     """
     Функция для создания новой задачи на основе переданных данных
@@ -190,7 +190,16 @@ def set_employee_important_task(taskId: str, db: Session = Depends(get_db)):
     """
     task_query = db.query(Task).filter(Task.id == taskId)
     task = task_query.first()
+
+    if not task:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f'Задание с id: {taskId} не найдено')
+
     employee_parent = task.parent_task
+
+    # Check if parent task exists before accessing its methods
+    parent_task_count = employee_parent.count_task() if employee_parent else 0
+
     payload = TaskCreateUpdateSchema(
         name=task.name,
         content=task.content,
@@ -204,26 +213,25 @@ def set_employee_important_task(taskId: str, db: Session = Depends(get_db)):
     employees_query = db.query(Employee).all()
     employees_query = sorted(employees_query, key=count_tasks)
     employee_min = employees_query[0]
-    employees_free = []
-    for employee in employees_query:
-        if employee.count_task() == 0:
-            employees_free.append(employee)
+
+    employees_free = [employee for employee in employees_query if employee.count_task() == 0]
     employee_free = employee_min
+
     # Если свободный есть, берем первый и обновляем задание.
-    if len(employees_free) > 0:
+    if employees_free:
         employee_free = employees_free[0]
     else:
         # Если нет свободного, ищем с наименьшим количеством задач и сотрудника,
         # имеющего в работе родительскую задачу.
-        if employee_parent.count_task() < employee_min.count_task() + 3:
+        if employee_parent and parent_task_count < employee_min.count_task() + 3:
             employee_free = employee_parent
 
     payload.employee_id = employee_free.id
     payload.status = 1
     update_data = payload.dict(exclude_unset=True)
-    # Если нет, ищем дальше.
-    task_query.filter(Task.id == taskId).update(
-        update_data, synchronize_session=False)
+
+    task_query.update(update_data, synchronize_session=False)
     db.commit()
     db.refresh(task)
+
     return {"status": "success", "task": task}
