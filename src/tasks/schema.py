@@ -19,21 +19,20 @@ class BaseTaskSchema(BaseModel):
         status : int    Статус задания.
         employee_id : Optional[UUID]    ID сотрудника.
     """
-    name: str  # Название задания
-    content: str  # Описание задания
-    period_of_execution: datetime | None = None  # Период выполнения задания
-    parent_id: UUID | None = None  # ID родительского задания
-    status: int = 0  # Статус задания
-    employee_id: UUID | None = None  # ID сотрудника
+    name: str
+    content: str
+    period_of_execution: datetime | None = None
+    parent_id: UUID | None = None
+    status: int = 0
+    employee_id: UUID | None = None
 
     class Config:
         """
         Настройки схемы
         """
-        from_attributes = True  # Генерировать настройки из атрибутов
-        # Разрешить передачу значений аргументов через именованные аргументы
+        from_attributes = True
         population_by_name = True
-        arbitrary_types_allowed = True  # Разрешить произвольные типы данных
+        arbitrary_types_allowed = True
         json_schema_extra = {
             "example": {
                 "name": "Задание1",
@@ -68,6 +67,6 @@ class TasksList(BaseModel):
 
     Attributes:
     -----------
-        tasks : List[TaskSchema]    Список заданий.
+        tasks : List[TaskSchema]
     """
     tasks: List[TaskSchema]

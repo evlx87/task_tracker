@@ -8,7 +8,6 @@ from src.employee.services import count_tasks
 from src.tasks.model import Task
 from src.tasks.schema import TasksList, TaskCreateUpdateSchema
 
-# Создание нового роутера APIRouter с тегом 'Tasks' и префиксом '/tasks'
 api_task = APIRouter(tags=['Tasks'], prefix='/tasks')
 
 
@@ -50,7 +49,6 @@ def get_task(taskId: str, db: Session = Depends(get_db)):
     return {"status": "success", "task": task}
 
 
-# Создание новой задачи
 @api_task.post('/create/', status_code=status.HTTP_201_CREATED)
 def create_tasks(payload: TaskCreateUpdateSchema = Body(),
                  db: Session = Depends(get_db)):
@@ -74,7 +72,6 @@ def create_tasks(payload: TaskCreateUpdateSchema = Body(),
             'task': new_task}
 
 
-# Обновление задачи по ID
 @api_task.patch('/update/{taskId}')
 def update_task(taskId: str, payload: TaskCreateUpdateSchema = Depends(),
                 db: Session = Depends(get_db)):
@@ -103,7 +100,6 @@ def update_task(taskId: str, payload: TaskCreateUpdateSchema = Depends(),
     return {"status": "success", "task": task}
 
 
-# Удаление задачи по ID
 @api_task.delete('/del/{taskId}')
 def delete_task(taskId: str, db: Session = Depends(get_db)):
     """
@@ -126,7 +122,6 @@ def delete_task(taskId: str, db: Session = Depends(get_db)):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-# Получение списка важных задач
 @api_task.get('/important')
 def get_important_tasks(db: Session = Depends(get_db),
                         limit: int = 10, page: int = 1):
@@ -152,7 +147,6 @@ def get_important_tasks(db: Session = Depends(get_db),
     return {'status': 'success', 'results': len(tasks_ret), 'tasks': tasks_ret}
 
 
-# Получение списка незадействованных задач
 @api_task.get('/free')
 def get_free_tasks(db: Session = Depends(get_db),
                    limit: int = 10, page: int = 1):
@@ -175,7 +169,6 @@ def get_free_tasks(db: Session = Depends(get_db),
     return {'status': 'success', 'results': len(tasks), 'tasks': tasks}
 
 
-# Назначение исполнителя для важной задачи
 @api_task.patch('/set_employee/{taskId}')
 def set_employee_important_task(taskId: str, db: Session = Depends(get_db)):
     """
@@ -197,7 +190,6 @@ def set_employee_important_task(taskId: str, db: Session = Depends(get_db)):
 
     employee_parent = task.parent_task
 
-    # Check if parent task exists before accessing its methods
     parent_task_count = employee_parent.count_task() if employee_parent else 0
 
     payload = TaskCreateUpdateSchema(
@@ -209,20 +201,17 @@ def set_employee_important_task(taskId: str, db: Session = Depends(get_db)):
         employee_id=task.employee_id
     )
 
-    # Получаем сотрудников, ищем свободного сотрудника, без задач
     employees_query = db.query(Employee).all()
     employees_query = sorted(employees_query, key=count_tasks)
     employee_min = employees_query[0]
 
-    employees_free = [employee for employee in employees_query if employee.count_task() == 0]
+    employees_free = [
+        employee for employee in employees_query if employee.count_task() == 0]
     employee_free = employee_min
 
-    # Если свободный есть, берем первый и обновляем задание.
     if employees_free:
         employee_free = employees_free[0]
     else:
-        # Если нет свободного, ищем с наименьшим количеством задач и сотрудника,
-        # имеющего в работе родительскую задачу.
         if employee_parent and parent_task_count < employee_min.count_task() + 3:
             employee_free = employee_parent
 

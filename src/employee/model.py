@@ -1,12 +1,7 @@
-import uuid  # Импорт модуля uuid для генерации уникальных идентификаторов
+import uuid
 
-# Импорт классов Column и String из sqlalchemy для определения полей
 from sqlalchemy import Column, String
-
-# Импорт класса UUID из диалекта PostgreSQL
 from sqlalchemy.dialects.postgresql import UUID
-
-# Импорт DeclarativeBase и relationship для работы с моделями и отношениями
 from sqlalchemy.orm import DeclarativeBase, relationship
 
 
@@ -15,7 +10,7 @@ class Base(DeclarativeBase):
     pass
 
 
-class Employee(Base):  # Определение модели Employee
+class Employee(Base):
     """
     Модель данных для представления информации о сотруднике.
 
@@ -29,26 +24,23 @@ class Employee(Base):  # Определение модели Employee
     post : str (optional)       Должность сотрудника.
     tasks : relationship[Task]  Отношение с моделью Task.
     """
-    __tablename__ = 'employee'  # Имя таблицы в базе данных
+    __tablename__ = 'employee'
 
     id = Column(
         UUID(
             as_uuid=True),
         primary_key=True,
         nullable=False,
-        default=uuid.uuid4)  # Поле id типа UUID
-    # Поле email типа String, уникальное
+        default=uuid.uuid4)
     email = Column(String, nullable=False, unique=True)
-    # Поле last_name типа String, обязательное
     last_name = Column(String, nullable=False)
-    # Поле first_name типа String, обязательное
     first_name = Column(String, nullable=False)
-    patronymic = Column(String)  # Поле patronymic типа String
-    post = Column(String)  # Поле post типа String
+    patronymic = Column(String)
+    post = Column(String)
     tasks = relationship(
         'Task',
         back_populates='employees',
-        lazy='joined')  # Отношение с моделью Task
+        lazy='joined')
 
     def __repr__(self):
         """Метод возвращает строковое представление объекта Employee."""
