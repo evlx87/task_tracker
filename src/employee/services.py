@@ -122,17 +122,26 @@ def delete_employee(employeeId: str, db: Session = Depends(get_db)):
 
     Attributes:
     -----------
-    employeeId : str    Идентификатор сотрудника.
-    db : Session    Сессия базы данных.
+    employeeId: str    Идентификатор сотрудника.
+    db: Session    Сессия базы данных.
+
+    Returns:
+    --------
+    dict    Результат удаления сотрудника.
     """
-    employee_query = db.query(Employee).filter(Employee.id == employeeId)
-    employee = employee_query.first()
+    employee = db.query(Employee).filter(Employee.id == employeeId).first()
     if not employee:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'Сотрудник с id: {employeeId} не найден')
-    employee_query.delete(synchronize_session=False)
+
+    if employee.tasks:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"У сотрудника с id: {employeeId} есть назначенные задачи. Удаление невозможно!")
+
+    db.query(Employee).filter(Employee.id == employeeId).delete()
     db.commit()
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    return {"status": "success", "message": "Сотрудник успешно удален."}
 
 
 @api_employee.get('/busy', response_model=EmployeeList)
